@@ -9,7 +9,7 @@
 
 **ARTHA** is a secure, responsive, full-stack personal finance and budget management platform designed to help users track transactions, establish monthly category budgets, and analyze spending patterns with real-time budget threshold warnings.
 
-> **Live Demo:** [https://artha-demo.placeholder.app](https://artha-demo.placeholder.app) *(Deployment Link Placeholder)*
+> **Live Demo:** [https://artha-expense.vercel.app](https://artha-expense.vercel.app)
 
 ---
 
