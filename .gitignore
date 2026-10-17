@@ -1,0 +1,32 @@
+# Build results & dependencies
+bin/
+obj/
+node_modules/
+dist/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Secrets & Environment variables
+.env
+.env.local
+*.local
+appsettings.*.local.json
+appsettings.Local.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Log & temp files
+*.log
+*.tmp
+TestResults/
