@@ -84,6 +84,18 @@ public class TransactionsController : ControllerBase
 
         if (categoryId.HasValue)
         {
+            var categoryExists = await _dbContext.Categories
+                .AnyAsync(c => c.Id == categoryId.Value && c.UserId == userId, cancellationToken);
+
+            if (!categoryExists)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Bad Request",
+                    detail: "Category does not exist or does not belong to the authenticated user."
+                );
+            }
+
             query = query.Where(t => t.CategoryId == categoryId.Value);
         }
 

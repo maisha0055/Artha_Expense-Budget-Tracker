@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:8.0
-    container_name: finance-tracker-db
+    container_name: artha-db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
@@ -17,6 +17,25 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: artha-api
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=db;Port=3306;Database=${MYSQL_DATABASE:-financetracker};User=${MYSQL_USER:-financetracker};Password=${MYSQL_PASSWORD:-financetracker_secret};"
+      Jwt__Key: ${JWT_KEY:-super_secret_jwt_key_that_is_at_least_32_chars_long!}
+      Jwt__Issuer: ArthaApi
+      Jwt__Audience: ArthaClient
+      FrontendOrigin: ${FRONTEND_ORIGIN:-http://localhost:5173}
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   mysql_data:

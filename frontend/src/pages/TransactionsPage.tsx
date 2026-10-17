@@ -19,19 +19,21 @@ import {
   ChevronRight,
   ChevronDown,
 } from 'lucide-react';
+import { useToast } from '../components/useToast';
+
+const getCurrentMonth = (): string => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
 
 export const TransactionsPage: React.FC = () => {
   const queryClient = useQueryClient();
-
-  const getCurrentMonth = () => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
-  };
+  const { showToast } = useToast();
 
   // Filter states
-  const [month, setMonth] = useState<string>(getCurrentMonth());
+  const [month, setMonth] = useState<string>(getCurrentMonth);
   const [categoryId, setCategoryId] = useState<number | ''>('');
   const [type, setType] = useState<TransactionType | ''>('');
   const [page, setPage] = useState<number>(1);
@@ -74,6 +76,13 @@ export const TransactionsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['summary'] });
       setIsFormModalOpen(false);
+      showToast('Transaction recorded successfully!', 'success');
+    },
+    onError: (err: unknown) => {
+      const msg =
+        (err as { response?: { data?: { detail?: string; title?: string } } })?.response?.data?.detail ||
+        'Failed to record transaction.';
+      showToast(msg, 'error');
     },
   });
 
@@ -85,6 +94,13 @@ export const TransactionsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['summary'] });
       setEditingTransaction(null);
+      showToast('Transaction updated successfully!', 'success');
+    },
+    onError: (err: unknown) => {
+      const msg =
+        (err as { response?: { data?: { detail?: string; title?: string } } })?.response?.data?.detail ||
+        'Failed to update transaction.';
+      showToast(msg, 'error');
     },
   });
 
@@ -95,6 +111,13 @@ export const TransactionsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['summary'] });
       setDeletingTransaction(null);
+      showToast('Transaction deleted successfully.', 'info');
+    },
+    onError: (err: unknown) => {
+      const msg =
+        (err as { response?: { data?: { detail?: string; title?: string } } })?.response?.data?.detail ||
+        'Failed to delete transaction.';
+      showToast(msg, 'error');
     },
   });
 
@@ -146,11 +169,14 @@ export const TransactionsPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <span className="text-xs font-black tracking-widest text-[var(--accent-rose-text)] uppercase">
+            RECORDS & AUDIT
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--text)]">
             Transactions
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            View, filter, and manage all your income and expense records.
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
+            Filter, search, and manage all income and expense history.
           </p>
         </div>
 
@@ -158,18 +184,18 @@ export const TransactionsPage: React.FC = () => {
           type="button"
           id="add-transaction-btn"
           onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.99] transition-all"
+          className="btn-primary inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-rose-glow cursor-pointer"
         >
-          <Plus className="h-4 w-4" />
-          Add Transaction
+          <Plus className="h-4 w-4 stroke-[2.5]" />
+          <span>Add Transaction</span>
         </button>
       </div>
 
-      {/* Filters Bar */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
-            <Filter className="h-3.5 w-3.5 text-indigo-600" />
+      {/* Modern Glass Filters Bar */}
+      <div className="rounded-3xl glass-card p-5 border border-[var(--border)] shadow-glass space-y-3">
+        <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+            <Filter className="h-3.5 w-3.5 text-[var(--accent-teal-text)]" />
             Filters & Search
           </div>
 
@@ -178,7 +204,7 @@ export const TransactionsPage: React.FC = () => {
               type="button"
               id="reset-filters-btn"
               onClick={handleResetFilters}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--accent-teal-text)] hover:text-[var(--accent-rose)] transition-colors cursor-pointer"
             >
               <RotateCcw className="h-3 w-3" />
               Reset Filters
@@ -189,7 +215,7 @@ export const TransactionsPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Month Filter */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label htmlFor="filter-month-input" className="block text-xs font-bold text-[var(--text)] mb-1">
               Month
             </label>
             <div className="relative">
@@ -201,14 +227,14 @@ export const TransactionsPage: React.FC = () => {
                   setMonth(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-input)] px-3.5 py-2 text-xs font-semibold text-[var(--text)] transition focus:border-[var(--accent-teal)] focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-teal-border)] cursor-pointer"
               />
             </div>
           </div>
 
           {/* Category Filter */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label htmlFor="filter-category-select" className="block text-xs font-bold text-[var(--text)] mb-1">
               Category
             </label>
             <div className="relative">
@@ -219,22 +245,22 @@ export const TransactionsPage: React.FC = () => {
                   setCategoryId(e.target.value ? Number(e.target.value) : '');
                   setPage(1);
                 }}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pr-8 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full appearance-none rounded-2xl border border-[var(--border)] bg-[var(--surface-input)] px-3.5 py-2 pr-8 text-xs font-semibold text-[var(--text)] transition focus:border-[var(--accent-teal)] focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-teal-border)] cursor-pointer"
               >
-                <option value="">All Categories</option>
+                <option value="" className="bg-[var(--surface-solid)] text-[var(--text)]">All Categories</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} className="bg-[var(--surface-solid)] text-[var(--text)]">
                     {c.name}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-subtle)]" />
             </div>
           </div>
 
           {/* Type Filter */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label htmlFor="filter-type-select" className="block text-xs font-bold text-[var(--text)] mb-1">
               Transaction Type
             </label>
             <div className="relative">
@@ -245,19 +271,19 @@ export const TransactionsPage: React.FC = () => {
                   setType(e.target.value as TransactionType | '');
                   setPage(1);
                 }}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pr-8 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full appearance-none rounded-2xl border border-[var(--border)] bg-[var(--surface-input)] px-3.5 py-2 pr-8 text-xs font-semibold text-[var(--text)] transition focus:border-[var(--accent-teal)] focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-teal-border)] cursor-pointer"
               >
-                <option value="">All Types (Income & Expense)</option>
-                <option value="Expense">Expense Only</option>
-                <option value="Income">Income Only</option>
+                <option value="" className="bg-[var(--surface-solid)] text-[var(--text)]">All Types (Income & Expense)</option>
+                <option value="Expense" className="bg-[var(--surface-solid)] text-[var(--text)]">Expense Only</option>
+                <option value="Income" className="bg-[var(--surface-solid)] text-[var(--text)]">Income Only</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-subtle)]" />
             </div>
           </div>
 
           {/* Page Size Filter */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label htmlFor="filter-pagesize-select" className="block text-xs font-bold text-[var(--text)] mb-1">
               Items Per Page
             </label>
             <div className="relative">
@@ -268,13 +294,13 @@ export const TransactionsPage: React.FC = () => {
                   setPageSize(Number(e.target.value));
                   setPage(1);
                 }}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pr-8 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full appearance-none rounded-2xl border border-[var(--border)] bg-[var(--surface-input)] px-3.5 py-2 pr-8 text-xs font-semibold text-[var(--text)] transition focus:border-[var(--accent-teal)] focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-teal-border)] cursor-pointer"
               >
-                <option value={10}>10 records</option>
-                <option value={20}>20 records</option>
-                <option value={50}>50 records</option>
+                <option value={10} className="bg-[var(--surface-solid)] text-[var(--text)]">10 records</option>
+                <option value={20} className="bg-[var(--surface-solid)] text-[var(--text)]">20 records</option>
+                <option value={50} className="bg-[var(--surface-solid)] text-[var(--text)]">50 records</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-subtle)]" />
             </div>
           </div>
         </div>
@@ -292,15 +318,15 @@ export const TransactionsPage: React.FC = () => {
         onAddNew={handleOpenAdd}
       />
 
-      {/* Pagination Bar */}
+      {/* Rounded Pagination Bar */}
       {totalCount > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
-          <p className="text-xs text-slate-500">
-            Showing <span className="font-semibold text-slate-700 font-mono">{(page - 1) * pageSize + 1}</span> to{' '}
-            <span className="font-semibold text-slate-700 font-mono">
+          <p className="text-xs text-[var(--text-muted)] font-medium">
+            Showing <span className="font-bold text-[var(--text)]">{(page - 1) * pageSize + 1}</span> to{' '}
+            <span className="font-bold text-[var(--text)]">
               {Math.min(page * pageSize, totalCount)}
             </span>{' '}
-            of <span className="font-semibold text-slate-700 font-mono">{totalCount}</span> results
+            of <span className="font-bold text-[var(--text)]">{totalCount}</span> results
           </p>
 
           <div className="flex items-center gap-2">
@@ -309,13 +335,13 @@ export const TransactionsPage: React.FC = () => {
               id="pagination-prev-btn"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition"
+              className="inline-flex items-center gap-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-input)] px-3.5 py-2 text-xs font-bold text-[var(--text)] shadow-xs hover:bg-[var(--accent-teal-tint)] hover:text-[var(--accent-teal-text)] disabled:opacity-40 disabled:hover:bg-[var(--surface-input)] transition cursor-pointer"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 stroke-[2.2]" />
               Previous
             </button>
 
-            <span className="px-3 text-xs font-semibold text-slate-600 font-mono">
+            <span className="px-3.5 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text)]">
               Page {page} of {Math.max(1, totalPages)}
             </span>
 
@@ -324,10 +350,10 @@ export const TransactionsPage: React.FC = () => {
               id="pagination-next-btn"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition"
+              className="inline-flex items-center gap-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-input)] px-3.5 py-2 text-xs font-bold text-[var(--text)] shadow-xs hover:bg-[var(--accent-teal-tint)] hover:text-[var(--accent-teal-text)] disabled:opacity-40 disabled:hover:bg-[var(--surface-input)] transition cursor-pointer"
             >
               Next
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 stroke-[2.2]" />
             </button>
           </div>
         </div>
@@ -348,6 +374,7 @@ export const TransactionsPage: React.FC = () => {
         }
       >
         <TransactionForm
+          key={editingTransaction ? String(editingTransaction.id) : 'new'}
           initialData={editingTransaction}
           categories={categories}
           onSubmit={handleFormSubmit}

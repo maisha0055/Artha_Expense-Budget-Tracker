@@ -30,3 +30,11 @@ appsettings.Local.json
 *.log
 *.tmp
 TestResults/
+
+# Excluded documents per request
+DEPLOYMENT.md
+deployment.md
+PROJECT_SPEC.md
+project_spec.md
+requirments and guide.md.pdf
+*.pdf

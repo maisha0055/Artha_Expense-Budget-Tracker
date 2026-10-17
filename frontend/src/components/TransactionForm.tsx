@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Category, Transaction, TransactionType, CreateTransactionRequest } from '../types';
 import { AlertCircle, ArrowDownLeft, ArrowUpRight, Calendar, Tag, FileText } from 'lucide-react';
+import { CURRENCY_SYMBOL } from '../constants/currency';
 
 interface TransactionFormProps {
   initialData?: Transaction | null;
@@ -10,6 +11,14 @@ interface TransactionFormProps {
   isLoading?: boolean;
 }
 
+const getTodayDate = (): string => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const TransactionForm: React.FC<TransactionFormProps> = ({
   initialData,
   categories,
@@ -17,14 +26,6 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   onCancel,
   isLoading = false,
 }) => {
-  const getTodayDate = () => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const [type, setType] = useState<TransactionType>(initialData?.type || 'Expense');
   const [amount, setAmount] = useState<string>(initialData ? initialData.amount.toString() : '');
   const [categoryId, setCategoryId] = useState<number | ''>(
@@ -40,24 +41,6 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     note?: string;
   }>({});
   const [serverError, setServerError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (initialData) {
-      setType(initialData.type);
-      setAmount(initialData.amount.toString());
-      setCategoryId(initialData.categoryId);
-      setDate(initialData.date);
-      setNote(initialData.note || '');
-    } else {
-      setType('Expense');
-      setAmount('');
-      setCategoryId(categories.length > 0 ? categories[0].id : '');
-      setDate(getTodayDate());
-      setNote('');
-    }
-    setErrors({});
-    setServerError(null);
-  }, [initialData, categories]);
 
   const validate = (): boolean => {
     const newErrors: typeof errors = {};
@@ -109,57 +92,57 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 font-sans">
       {serverError && (
-        <div className="flex items-start gap-2.5 rounded-xl bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700 animate-in fade-in">
-          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
-          <p className="flex-1 text-xs font-medium">{serverError}</p>
+        <div className="flex items-start gap-2.5 rounded-2xl bg-[var(--accent-rose-tint)] border border-[var(--accent-rose-border)] p-3.5 text-xs text-[var(--accent-rose-text)] animate-in fade-in">
+          <AlertCircle className="h-4 w-4 shrink-0 text-[var(--accent-rose)] mt-0.5" />
+          <p className="flex-1 font-semibold">{serverError}</p>
         </div>
       )}
 
-      {/* Transaction Type Toggle */}
+      {/* Segmented Income/Expense Toggle */}
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+        <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text)] mb-1.5">
           Transaction Type
         </label>
-        <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[var(--surface)] p-1.5 border border-[var(--border)]">
           <button
             type="button"
             id="type-expense-btn"
             onClick={() => setType('Expense')}
-            className={`flex items-center justify-center gap-2 rounded-lg py-2 text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold transition-all cursor-pointer ${
               type === 'Expense'
-                ? 'bg-white text-rose-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[var(--surface-solid)] text-[var(--accent-rose-text)] border border-[var(--accent-rose-border)] shadow-xs'
+                : 'text-[var(--text-muted)] hover:text-[var(--text)]'
             }`}
           >
-            <ArrowUpRight className="h-4 w-4 text-rose-500" />
+            <ArrowUpRight className="h-4 w-4 text-[var(--accent-rose)] stroke-[2.5]" />
             Expense
           </button>
           <button
             type="button"
             id="type-income-btn"
             onClick={() => setType('Income')}
-            className={`flex items-center justify-center gap-2 rounded-lg py-2 text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold transition-all cursor-pointer ${
               type === 'Income'
-                ? 'bg-white text-emerald-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[var(--surface-solid)] text-[var(--accent-teal-text)] border border-[var(--accent-teal-border)] shadow-xs'
+                : 'text-[var(--text-muted)] hover:text-[var(--text)]'
             }`}
           >
-            <ArrowDownLeft className="h-4 w-4 text-emerald-500" />
+            <ArrowDownLeft className="h-4 w-4 text-[var(--accent-teal)] stroke-[2.5]" />
             Income
           </button>
         </div>
       </div>
 
-      {/* Amount Field */}
+      {/* Amount Field (Large Input) */}
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-          Amount (৳)
+        <label htmlFor="transaction-amount-input" className="block text-xs font-bold uppercase tracking-wider text-[var(--text)] mb-1.5">
+          Amount ({CURRENCY_SYMBOL})
         </label>
         <div className="relative">
-          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-semibold text-slate-400">
-            ৳
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base font-extrabold text-[var(--text)]">
+            {CURRENCY_SYMBOL}
           </span>
           <input
             id="transaction-amount-input"
@@ -172,25 +155,25 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               setAmount(e.target.value);
               if (errors.amount) setErrors((prev) => ({ ...prev, amount: undefined }));
             }}
-            className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-9 pr-3.5 text-sm font-mono text-slate-900 transition placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 ${
+            className={`w-full rounded-2xl border bg-[var(--surface-input)] py-3 pl-10 pr-4 text-base font-bold text-[var(--text)] transition placeholder:text-[var(--text-subtle)] focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 ${
               errors.amount
-                ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-200'
-                : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                ? 'border-[var(--accent-rose)] focus:ring-[var(--accent-rose-border)]'
+                : 'border-[var(--border)] focus:border-[var(--accent-teal)] focus:ring-[var(--accent-teal-border)]'
             }`}
           />
         </div>
         {errors.amount && (
-          <p className="mt-1 text-xs text-rose-600 font-medium">{errors.amount}</p>
+          <p className="mt-1 text-xs text-[var(--accent-rose-text)] font-semibold">{errors.amount}</p>
         )}
       </div>
 
       {/* Category Dropdown */}
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+        <label htmlFor="transaction-category-select" className="block text-xs font-bold uppercase tracking-wider text-[var(--text)] mb-1.5">
           Category
         </label>
         <div className="relative">
-          <Tag className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Tag className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-subtle)]" />
           <select
             id="transaction-category-select"
             value={categoryId}
@@ -198,38 +181,38 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               setCategoryId(Number(e.target.value));
               if (errors.categoryId) setErrors((prev) => ({ ...prev, categoryId: undefined }));
             }}
-            className={`w-full appearance-none rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-9 text-sm text-slate-900 transition focus:bg-white focus:outline-none focus:ring-2 ${
+            className={`w-full appearance-none rounded-2xl border bg-[var(--surface-input)] py-3 pl-10 pr-9 text-sm font-semibold text-[var(--text)] transition focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 cursor-pointer ${
               errors.categoryId
-                ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-200'
-                : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                ? 'border-[var(--accent-rose)] focus:ring-[var(--accent-rose-border)]'
+                : 'border-[var(--border)] focus:border-[var(--accent-teal)] focus:ring-[var(--accent-teal-border)]'
             }`}
           >
             {categories.length === 0 ? (
               <option value="">No categories available</option>
             ) : (
               categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
+                <option key={cat.id} value={cat.id} className="bg-[var(--surface-solid)] text-[var(--text)]">
                   {cat.name}
                 </option>
               ))
             )}
           </select>
-          <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+          <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-subtle)] text-xs">
             ▼
           </div>
         </div>
         {errors.categoryId && (
-          <p className="mt-1 text-xs text-rose-600 font-medium">{errors.categoryId}</p>
+          <p className="mt-1 text-xs text-[var(--accent-rose-text)] font-semibold">{errors.categoryId}</p>
         )}
       </div>
 
       {/* Date Field */}
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+        <label htmlFor="transaction-date-input" className="block text-xs font-bold uppercase tracking-wider text-[var(--text)] mb-1.5">
           Date
         </label>
         <div className="relative">
-          <Calendar className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Calendar className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-subtle)]" />
           <input
             id="transaction-date-input"
             type="date"
@@ -238,28 +221,28 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               setDate(e.target.value);
               if (errors.date) setErrors((prev) => ({ ...prev, date: undefined }));
             }}
-            className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 transition focus:bg-white focus:outline-none focus:ring-2 ${
+            className={`w-full rounded-2xl border bg-[var(--surface-input)] py-3 pl-10 pr-4 text-sm font-semibold text-[var(--text)] transition focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 cursor-pointer ${
               errors.date
-                ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-200'
-                : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                ? 'border-[var(--accent-rose)] focus:ring-[var(--accent-rose-border)]'
+                : 'border-[var(--border)] focus:border-[var(--accent-teal)] focus:ring-[var(--accent-teal-border)]'
             }`}
           />
         </div>
         {errors.date && (
-          <p className="mt-1 text-xs text-rose-600 font-medium">{errors.date}</p>
+          <p className="mt-1 text-xs text-[var(--accent-rose-text)] font-semibold">{errors.date}</p>
         )}
       </div>
 
       {/* Note Field */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+          <label htmlFor="transaction-note-input" className="block text-xs font-bold uppercase tracking-wider text-[var(--text)]">
             Note (Optional)
           </label>
-          <span className="text-[11px] text-slate-400">{note.length}/255</span>
+          <span className="text-[11px] text-[var(--text-subtle)] font-medium">{note.length}/255</span>
         </div>
         <div className="relative">
-          <FileText className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+          <FileText className="pointer-events-none absolute left-3.5 top-3.5 h-4 w-4 text-[var(--text-subtle)]" />
           <textarea
             id="transaction-note-input"
             rows={2}
@@ -270,26 +253,26 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               setNote(e.target.value);
               if (errors.note) setErrors((prev) => ({ ...prev, note: undefined }));
             }}
-            className={`w-full rounded-xl border bg-slate-50/50 py-2 pl-10 pr-3.5 text-sm text-slate-900 transition placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 resize-none ${
+            className={`w-full rounded-2xl border bg-[var(--surface-input)] py-3 pl-10 pr-4 text-sm text-[var(--text)] transition placeholder:text-[var(--text-subtle)] focus:bg-[var(--surface-solid)] focus:outline-none focus:ring-2 resize-none ${
               errors.note
-                ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-200'
-                : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                ? 'border-[var(--accent-rose)] focus:ring-[var(--accent-rose-border)]'
+                : 'border-[var(--border)] focus:border-[var(--accent-teal)] focus:ring-[var(--accent-teal-border)]'
             }`}
           />
         </div>
         {errors.note && (
-          <p className="mt-1 text-xs text-rose-600 font-medium">{errors.note}</p>
+          <p className="mt-1 text-xs text-[var(--accent-rose-text)] font-semibold">{errors.note}</p>
         )}
       </div>
 
       {/* Modal Actions */}
-      <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border)]">
         <button
           type="button"
           id="transaction-cancel-btn"
           onClick={onCancel}
           disabled={isLoading}
-          className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
+          className="btn-ghost rounded-2xl px-5 py-3 text-sm font-semibold cursor-pointer disabled:opacity-50"
         >
           Cancel
         </button>
@@ -297,7 +280,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           type="submit"
           id="transaction-submit-btn"
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.99] transition-all disabled:opacity-50"
+          className="btn-primary rounded-2xl px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           {isLoading && (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

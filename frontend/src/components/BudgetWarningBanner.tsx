@@ -21,65 +21,65 @@ export const BudgetWarningBanner: React.FC<BudgetWarningBannerProps> = ({ catego
   return (
     <div
       role="alert"
-      className={`rounded-2xl border p-4 sm:p-5 shadow-sm transition-all animate-in fade-in duration-200 ${
+      className={`rounded-3xl glass-card p-5 sm:p-6 shadow-glass border-l-4 transition-all animate-in fade-in duration-200 ${
         hasExceeded
-          ? 'bg-rose-50/90 border-rose-200 text-rose-900'
-          : 'bg-amber-50/90 border-amber-200 text-amber-900'
+          ? 'border-l-[var(--accent-rose)] bg-[var(--accent-rose-tint)] border-[var(--accent-rose-border)] text-[var(--accent-rose-text)]'
+          : 'border-l-[var(--accent-coral)] bg-[var(--accent-coral-tint)] border-[var(--accent-coral-border)] text-[var(--accent-coral-text)]'
       }`}
     >
-      <div className="flex items-start gap-3.5">
+      <div className="flex items-start gap-4">
         <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm ${
             hasExceeded
-              ? 'bg-rose-100 text-rose-600'
-              : 'bg-amber-100 text-amber-600'
+              ? 'bg-[var(--accent-rose)] text-white'
+              : 'bg-[var(--accent-coral)] text-white'
           }`}
         >
           {hasExceeded ? (
-            <AlertOctagon className="h-5 w-5" />
+            <AlertOctagon className="h-6 w-6 stroke-[2.2]" />
           ) : (
-            <AlertTriangle className="h-5 w-5" />
+            <AlertTriangle className="h-6 w-6 stroke-[2.2]" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <h3 className="text-sm font-bold tracking-tight">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <h2 className="text-base font-extrabold tracking-tight text-[var(--text)]">
               {hasExceeded
                 ? 'Budget Limits Exceeded'
-                : 'Budget Warnings - Near Limit'}
-            </h3>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/70 shadow-2xs w-fit">
+                : 'Budget Warnings - Near Limits'}
+            </h2>
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[var(--surface-input)] text-[var(--text)] border border-[var(--border)] shadow-xs w-fit">
               {alertedCategories.length} {alertedCategories.length === 1 ? 'category' : 'categories'} affected
             </span>
           </div>
 
-          <p className="text-xs mt-1 text-slate-600">
-            The following monthly category budgets require attention:
+          <p className="text-xs mt-1 text-[var(--text-muted)] font-medium">
+            The following monthly category budgets require immediate attention:
           </p>
 
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {alertedCategories.map((c) => {
               const isExceeded = c.status === 'Exceeded';
               return (
                 <div
                   key={c.categoryId}
-                  className={`flex items-center justify-between rounded-xl bg-white/80 backdrop-blur-xs p-2.5 border shadow-2xs text-xs ${
-                    isExceeded ? 'border-rose-300' : 'border-amber-300'
+                  className={`flex items-center justify-between rounded-2xl bg-[var(--surface-input)] backdrop-blur-sm p-3 border shadow-xs text-xs transition hover:bg-[var(--surface-hover)] ${
+                    isExceeded ? 'border-[var(--accent-rose-border)]' : 'border-[var(--accent-coral-border)]'
                   }`}
                 >
                   <div className="min-w-0 pr-2">
-                    <p className="font-semibold text-slate-900 truncate">{c.name}</p>
-                    <p className="text-[11px] text-slate-500 font-mono">
+                    <p className="font-bold text-[var(--text)] truncate text-sm">{c.name}</p>
+                    <p className="text-xs text-[var(--text-subtle)] font-medium mt-0.5">
                       {formatCurrency(c.spent)} of {c.limit !== null ? formatCurrency(c.limit) : 'N/A'}
                     </p>
                   </div>
 
                   <span
-                    className={`shrink-0 font-mono font-bold px-2 py-1 rounded-lg ${
+                    className={`shrink-0 font-bold px-2.5 py-1 rounded-xl text-xs border ${
                       isExceeded
-                        ? 'bg-rose-100 text-rose-700'
-                        : 'bg-amber-100 text-amber-700'
+                        ? 'bg-[var(--accent-rose-tint)] text-[var(--accent-rose-text)] border-[var(--accent-rose-border)]'
+                        : 'bg-[var(--accent-coral-tint)] text-[var(--accent-coral-text)] border-[var(--accent-coral-border)]'
                     }`}
                   >
                     {c.percentUsed !== null ? `${c.percentUsed.toFixed(1)}%` : ''}

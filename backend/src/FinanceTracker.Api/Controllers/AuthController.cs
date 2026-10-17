@@ -4,11 +4,13 @@ using FinanceTracker.Api.Extensions;
 using FinanceTracker.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FinanceTracker.Api.Controllers;
 
 [ApiController]
 [Route("auth")]
+[EnableRateLimiting("AuthLimiter")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

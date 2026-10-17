@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Plus,
 } from 'lucide-react';
+import { CURRENCY_SYMBOL } from '../constants/currency';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -59,10 +60,10 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
   // Loading skeleton rows
   if (isLoading) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-3xl glass-card border border-[var(--border)] shadow-glass">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="border-b border-slate-200/80 bg-slate-50/75 text-xs uppercase font-semibold text-slate-500">
+          <table className="w-full text-left text-sm text-[var(--text)]">
+            <thead className="border-b border-[var(--border)] bg-[var(--surface-solid)]/60 text-xs uppercase font-bold text-[var(--text-muted)]">
               <tr>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Category</th>
@@ -72,26 +73,26 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                 <th className="px-6 py-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[var(--border)]">
               {[...Array(5)].map((_, i) => (
                 <tr key={i} className="animate-pulse">
                   <td className="px-6 py-4">
-                    <div className="h-4 w-24 rounded bg-slate-200" />
+                    <div className="h-4 w-24 rounded-lg bg-[var(--surface-hover)]" />
                   </td>
                   <td className="px-6 py-4">
-                    <div className="h-6 w-20 rounded-full bg-slate-200" />
+                    <div className="h-6 w-20 rounded-full bg-[var(--surface-hover)]" />
                   </td>
                   <td className="px-6 py-4">
-                    <div className="h-6 w-16 rounded-full bg-slate-200" />
+                    <div className="h-6 w-16 rounded-full bg-[var(--surface-hover)]" />
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="ml-auto h-4 w-20 rounded bg-slate-200" />
+                    <div className="ml-auto h-4 w-20 rounded-lg bg-[var(--surface-hover)]" />
                   </td>
                   <td className="px-6 py-4">
-                    <div className="h-4 w-32 rounded bg-slate-200" />
+                    <div className="h-4 w-32 rounded-lg bg-[var(--surface-hover)]" />
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <div className="mx-auto h-8 w-16 rounded-lg bg-slate-200" />
+                    <div className="mx-auto h-8 w-16 rounded-xl bg-[var(--surface-hover)]" />
                   </td>
                 </tr>
               ))}
@@ -105,19 +106,19 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
   // Error state
   if (isError) {
     return (
-      <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-8 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-3">
-          <AlertCircle className="h-6 w-6" />
+      <div className="rounded-3xl border border-[var(--accent-rose-border)] bg-[var(--accent-rose-tint)] p-8 text-center shadow-glass">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-rose)] text-white mb-3 shadow-rose-glow">
+          <AlertCircle className="h-6 w-6 stroke-[2.2]" />
         </div>
-        <h3 className="text-base font-semibold text-rose-900">Failed to load transactions</h3>
-        <p className="text-sm text-rose-600 mt-1 max-w-md mx-auto">
+        <h3 className="text-base font-bold text-[var(--accent-rose-text)]">Failed to load transactions</h3>
+        <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
           {errorMessage || 'There was a problem communicating with the server.'}
         </p>
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 transition"
+            className="mt-4 btn-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold cursor-pointer"
           >
             <RefreshCw className="h-4 w-4" />
             Try Again
@@ -130,22 +131,22 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
   // Empty state
   if (transactions.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-4">
-          <Receipt className="h-7 w-7" />
+      <div className="rounded-3xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-12 text-center shadow-glass">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent-teal-tint)] text-[var(--accent-teal-text)] border border-[var(--accent-teal-border)] mb-4">
+          <Receipt className="h-7 w-7 stroke-[2.2]" />
         </div>
-        <h3 className="text-lg font-bold text-slate-900">No transactions found</h3>
-        <p className="text-sm text-slate-500 mt-1.5 max-w-md mx-auto">
-          No records match the current month or filter criteria. Add your first transaction or adjust your filters above.
+        <h3 className="text-lg font-bold text-[var(--text)]">No transactions recorded</h3>
+        <p className="text-xs text-[var(--text-muted)] mt-1.5 max-w-md mx-auto font-medium">
+          No records match the selected month or filter criteria. Add a transaction or adjust your filters above.
         </p>
         {onAddNew && (
           <button
             type="button"
             id="empty-state-add-btn"
             onClick={onAddNew}
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 transition active:scale-[0.99]"
+            className="mt-5 btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold cursor-pointer"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 stroke-[2.5]" />
             Add Transaction
           </button>
         )}
@@ -154,53 +155,53 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-3xl glass-card border border-[var(--border)] shadow-glass">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-600">
-          <thead className="border-b border-slate-200/80 bg-slate-50/75 text-xs uppercase font-semibold text-slate-500">
+        <table className="w-full text-left text-sm text-[var(--text)] font-sans">
+          <thead className="sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--surface-solid)]/95 backdrop-blur-md text-xs uppercase font-extrabold text-[var(--text-muted)]">
             <tr>
-              <th scope="col" className="px-6 py-3.5">
+              <th scope="col" className="px-6 py-4">
                 Date
               </th>
-              <th scope="col" className="px-6 py-3.5">
+              <th scope="col" className="px-6 py-4">
                 Category
               </th>
-              <th scope="col" className="px-6 py-3.5">
+              <th scope="col" className="px-6 py-4">
                 Type
               </th>
-              <th scope="col" className="px-6 py-3.5 text-right">
+              <th scope="col" className="px-6 py-4 text-right">
                 Amount
               </th>
-              <th scope="col" className="px-6 py-3.5">
+              <th scope="col" className="px-6 py-4">
                 Note
               </th>
-              <th scope="col" className="px-6 py-3.5 text-center">
+              <th scope="col" className="px-6 py-4 text-center">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[var(--border)]">
             {transactions.map((t) => {
               const isIncome = t.type === 'Income';
 
               return (
                 <tr
                   key={t.id}
-                  className="hover:bg-slate-50/80 transition-colors group"
+                  className="hover:bg-[var(--surface-hover)] transition-colors duration-150 group"
                 >
                   {/* Date */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-slate-800">
+                    <span className="font-bold text-[var(--text)] block">
                       {formatDate(t.date)}
                     </span>
-                    <span className="block text-xs text-slate-400 font-mono">
+                    <span className="text-[11px] text-[var(--text-subtle)] font-medium">
                       {t.date}
                     </span>
                   </td>
 
                   {/* Category */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                    <span className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--surface-input)] px-3 py-1 text-xs font-bold text-[var(--text)] border border-[var(--border)] shadow-2xs">
                       {t.categoryName}
                     </span>
                   </td>
@@ -208,16 +209,16 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   {/* Type Badge */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold border ${
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border ${
                         isIncome
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80'
-                          : 'bg-rose-50 text-rose-700 border-rose-200/80'
+                          ? 'bg-[var(--accent-teal-tint)] text-[var(--accent-teal-text)] border-[var(--accent-teal-border)]'
+                          : 'bg-[var(--accent-rose-tint)] text-[var(--accent-rose-text)] border-[var(--accent-rose-border)]'
                       }`}
                     >
                       {isIncome ? (
-                        <ArrowDownLeft className="h-3 w-3 text-emerald-600" />
+                        <ArrowDownLeft className="h-3.5 w-3.5 stroke-[2.5]" />
                       ) : (
-                        <ArrowUpRight className="h-3 w-3 text-rose-600" />
+                        <ArrowUpRight className="h-3.5 w-3.5 stroke-[2.5]" />
                       )}
                       {t.type}
                     </span>
@@ -226,11 +227,11 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   {/* Amount */}
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <span
-                      className={`font-mono font-bold text-sm ${
-                        isIncome ? 'text-emerald-600' : 'text-slate-900'
+                      className={`font-sans font-black text-sm ${
+                        isIncome ? 'text-[var(--accent-teal-text)]' : 'text-[var(--text)]'
                       }`}
                     >
-                      {isIncome ? '+' : '-'}৳{formatAmount(t.amount)}
+                      {isIncome ? '+' : '-'}{CURRENCY_SYMBOL}{formatAmount(t.amount)}
                     </span>
                   </td>
 
@@ -238,25 +239,25 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   <td className="px-6 py-4">
                     {t.note ? (
                       <span
-                        className="text-slate-600 text-xs block max-w-xs truncate"
+                        className="text-[var(--text-muted)] text-xs font-medium block max-w-xs truncate"
                         title={t.note}
                       >
                         {t.note}
                       </span>
                     ) : (
-                      <span className="text-slate-300 text-xs">—</span>
+                      <span className="text-[var(--text-subtle)] text-xs italic">—</span>
                     )}
                   </td>
 
                   {/* Actions */}
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-1">
+                    <div className="flex items-center justify-center gap-1.5">
                       <button
                         type="button"
                         id={`edit-transaction-${t.id}`}
                         onClick={() => onEdit(t)}
                         title="Edit transaction"
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                        className="rounded-xl p-2 text-[var(--text-subtle)] hover:bg-[var(--accent-teal-tint)] hover:text-[var(--accent-teal-text)] transition-colors cursor-pointer"
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
@@ -265,7 +266,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                         id={`delete-transaction-${t.id}`}
                         onClick={() => onDelete(t)}
                         title="Delete transaction"
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                        className="rounded-xl p-2 text-[var(--text-subtle)] hover:bg-[var(--accent-rose-tint)] hover:text-[var(--accent-rose-text)] transition-colors cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

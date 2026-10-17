@@ -1,19 +1,40 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using FinanceTracker.Api.Data;
 using FinanceTracker.Api.Middleware;
 using FinanceTracker.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container with consistent RFC 7807 validation responses
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var problemDetails = new ValidationProblemDetails(context.ModelState)
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation Failed",
+                Detail = "One or more validation errors occurred.",
+                Instance = context.HttpContext.Request.Path
+            };
+
+            return new BadRequestObjectResult(problemDetails)
+            {
+                ContentTypes = { "application/problem+json" }
+            };
+        };
     });
 
 // Database Context
@@ -31,12 +52,18 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISummaryService, SummaryService>();
 
-// JWT Authentication
+// JWT Authentication - Fail Fast Startup Validation
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? builder.Configuration["Jwt:Secret"]
     ?? Environment.GetEnvironmentVariable("Jwt__Key")
-    ?? Environment.GetEnvironmentVariable("Jwt__Secret")
-    ?? "ThisIsASuperSecretKeyForFinanceTrackerJwtTokenGeneration12345!";
+    ?? Environment.GetEnvironmentVariable("Jwt__Secret");
+
+if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
+{
+    throw new InvalidOperationException(
+        "Fatal Startup Error: JWT Key is missing or too short. It must be at least 32 characters long. Configure it via dotnet user-secrets or environment variable 'Jwt:Key'."
+    );
+}
 
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ArthaApi";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "ArthaClient";
@@ -66,12 +93,35 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// CORS
+// Rate Limiting on Auth endpoints (built-in ASP.NET rate limiter)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("AuthLimiter", opt =>
+    {
+        opt.PermitLimit = 15;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueLimit = 0;
+    });
+});
+
+// CORS: Restricted to configured origin + local frontend dev origins
+var configuredOrigin = builder.Configuration["FrontendOrigin"]
+    ?? Environment.GetEnvironmentVariable("FrontendOrigin")
+    ?? "http://localhost:5173";
+
+var allowedOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+{
+    configuredOrigin.TrimEnd('/'),
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+};
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true)
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -124,7 +174,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Global Exception Handler
+// Global Exception Handler - returns ProblemDetails and hides stack traces in Production
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure HTTP request pipeline.
@@ -136,9 +186,29 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 
+app.UseRateLimiter();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Apply EF Core migrations automatically only in non-production environments
+if (!app.Environment.IsProduction())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        logger.LogInformation("Applying EF Core database migrations (non-production)...");
+        db.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying EF Core database migrations.");
+    }
+}
 
 app.Run();

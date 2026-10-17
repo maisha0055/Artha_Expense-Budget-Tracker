@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal } from './Modal';
 import type { Transaction } from '../types';
 import { AlertTriangle, Trash2 } from 'lucide-react';
+import { CURRENCY_SYMBOL } from '../constants/currency';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -32,49 +33,51 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
       title="Delete Transaction"
       maxWidthClass="max-w-md"
     >
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-rose-800">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
-            <AlertTriangle className="h-5 w-5" />
+      <div className="space-y-4 font-sans">
+        <div className="flex items-start gap-3.5 rounded-2xl bg-[var(--accent-rose-tint)] border border-[var(--accent-rose-border)] p-4 text-[var(--accent-rose-text)]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-rose)] text-white shadow-xs">
+            <AlertTriangle className="h-5 w-5 stroke-[2.2]" />
           </div>
           <div className="text-sm">
-            <p className="font-semibold">Confirm Deletion</p>
-            <p className="text-xs text-rose-600 mt-0.5">
-              Are you sure you want to delete this transaction? This action cannot be undone.
+            <p className="font-bold">Confirm Deletion</p>
+            <p className="text-xs text-[var(--accent-rose-text)] mt-0.5 leading-relaxed font-medium">
+              Are you sure you want to delete this transaction record? This action cannot be reversed.
             </p>
           </div>
         </div>
 
         {/* Transaction Summary Card */}
-        <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-2 text-sm">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-input)] p-4 space-y-2.5 text-xs">
           <div className="flex justify-between items-center">
-            <span className="text-slate-500 text-xs uppercase font-medium">Category</span>
-            <span className="font-semibold text-slate-800">{transaction.categoryName}</span>
+            <span className="text-[var(--text-muted)] uppercase font-bold tracking-wider">Category</span>
+            <span className="font-bold text-[var(--text)] text-sm">{transaction.categoryName}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500 text-xs uppercase font-medium">Type</span>
+            <span className="text-[var(--text-muted)] uppercase font-bold tracking-wider">Type</span>
             <span
-              className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+              className={`font-bold px-2.5 py-0.5 rounded-full border ${
                 transaction.type === 'Income'
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : 'bg-rose-100 text-rose-800'
+                  ? 'bg-[var(--accent-teal-tint)] text-[var(--accent-teal-text)] border-[var(--accent-teal-border)]'
+                  : 'bg-[var(--accent-rose-tint)] text-[var(--accent-rose-text)] border-[var(--accent-rose-border)]'
               }`}
             >
               {transaction.type}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500 text-xs uppercase font-medium">Amount</span>
-            <span className="font-mono font-bold text-slate-900">৳{formattedAmount}</span>
+            <span className="text-[var(--text-muted)] uppercase font-bold tracking-wider">Amount</span>
+            <span className="font-extrabold text-sm text-[var(--text)]">
+              {CURRENCY_SYMBOL}{formattedAmount}
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500 text-xs uppercase font-medium">Date</span>
-            <span className="text-slate-700">{transaction.date}</span>
+            <span className="text-[var(--text-muted)] uppercase font-bold tracking-wider">Date</span>
+            <span className="text-[var(--text)] font-semibold">{transaction.date}</span>
           </div>
           {transaction.note && (
-            <div className="flex justify-between items-start pt-1 border-t border-slate-200/60">
-              <span className="text-slate-500 text-xs uppercase font-medium">Note</span>
-              <span className="text-xs text-slate-600 italic text-right max-w-[200px] truncate">
+            <div className="flex justify-between items-start pt-2 border-t border-[var(--border)]">
+              <span className="text-[var(--text-muted)] uppercase font-bold tracking-wider">Note</span>
+              <span className="text-[var(--text-muted)] italic text-right max-w-[200px] truncate font-medium">
                 {transaction.note}
               </span>
             </div>
@@ -82,13 +85,13 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border)]">
           <button
             type="button"
             id="cancel-delete-btn"
             onClick={onClose}
             disabled={isLoading}
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
+            className="btn-ghost rounded-2xl px-5 py-2.5 text-xs font-semibold cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>
@@ -97,7 +100,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             id="confirm-delete-btn"
             onClick={onConfirm}
             disabled={isLoading}
-            className="flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-rose-200 hover:bg-rose-700 active:scale-[0.99] transition-all disabled:opacity-50"
+            className="btn-primary rounded-2xl px-5 py-2.5 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {isLoading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

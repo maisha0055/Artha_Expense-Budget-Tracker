@@ -49,10 +49,20 @@ public class ExceptionHandlingMiddleware
                 "Not Found",
                 ex.Message
             ),
+            ArgumentException ex => (
+                StatusCodes.Status400BadRequest,
+                "Bad Request",
+                ex.Message
+            ),
+            BadHttpRequestException ex => (
+                StatusCodes.Status400BadRequest,
+                "Bad Request",
+                ex.Message
+            ),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "Internal Server Error",
-                _env.IsDevelopment() ? exception.Message : "An unexpected error occurred while processing your request."
+                _env.IsDevelopment() ? $"{exception.GetType().Name}: {exception.Message}" : "An unexpected error occurred while processing your request."
             )
         };
 

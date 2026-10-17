@@ -10,95 +10,98 @@ interface BudgetBarProps {
 export const BudgetBar: React.FC<BudgetBarProps> = ({ category }) => {
   const { name, spent, limit, percentUsed, status } = category;
 
-  // Status badge config
-  const getStatusBadge = () => {
+  // Status badge config with explicit icon, accessible text label, and distinct fills
+  const getStatusConfig = () => {
     switch (status) {
       case 'Ok':
         return {
-          label: 'Within Budget',
-          className: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+          label: 'On track',
+          badgeClass: 'bg-[var(--accent-teal-tint)] text-[var(--accent-teal-text)] border-[var(--accent-teal-border)]',
           icon: CheckCircle2,
-          barColor: 'bg-emerald-500',
+          barColor: 'bg-[var(--accent-teal)]',
+          percentColor: 'text-[var(--accent-teal-text)]',
         };
       case 'Warning':
         return {
-          label: 'Near Limit',
-          className: 'bg-amber-50 text-amber-700 border-amber-200/80',
+          label: 'Almost at limit',
+          badgeClass: 'bg-[var(--accent-coral-tint)] text-[var(--accent-coral-text)] border-[var(--accent-coral-border)]',
           icon: AlertTriangle,
-          barColor: 'bg-amber-500',
+          barColor: 'bg-[var(--accent-coral)]',
+          percentColor: 'text-[var(--accent-coral-text)]',
         };
       case 'Exceeded':
         return {
-          label: 'Exceeded',
-          className: 'bg-rose-50 text-rose-700 border-rose-200/80',
+          label: 'Over budget',
+          badgeClass: 'bg-[var(--accent-rose-tint)] text-[var(--accent-rose-text)] border-[var(--accent-rose-border)]',
           icon: AlertOctagon,
-          barColor: 'bg-rose-500',
+          barColor: 'bg-[var(--accent-rose)]',
+          percentColor: 'text-[var(--accent-rose-text)]',
         };
       case 'None':
       default:
         return {
-          label: 'No Budget',
-          className: 'bg-slate-100 text-slate-600 border-slate-200',
+          label: 'No budget set',
+          badgeClass: 'bg-[var(--surface-input)] text-[var(--text-muted)] border-[var(--border)]',
           icon: HelpCircle,
-          barColor: 'bg-slate-300',
+          barColor: 'bg-[var(--border-strong)]',
+          percentColor: 'text-[var(--text-muted)]',
         };
     }
   };
 
-  const badge = getStatusBadge();
-  const Icon = badge.icon;
+  const config = getStatusConfig();
+  const Icon = config.icon;
   const clampedPercent = percentUsed !== null ? Math.min(Math.max(percentUsed, 0), 100) : 0;
 
   return (
-    <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-white hover:shadow-sm">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] backdrop-blur-md p-4 transition-all duration-200 hover:bg-[var(--surface-hover)] hover:shadow-glass">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-800 text-sm">{name}</span>
+        <div className="flex items-center gap-2.5">
+          <span className="font-bold text-[var(--text)] text-sm">{name}</span>
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold border ${badge.className}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold border ${config.badgeClass}`}
           >
-            <Icon className="h-3 w-3" />
-            {badge.label}
+            <Icon className="h-3.5 w-3.5 stroke-[2.2]" />
+            {config.label}
           </span>
         </div>
 
-        <div className="text-right">
-          <span className="font-mono text-sm font-bold text-slate-900">
+        <div className="text-right flex items-center justify-end gap-1.5">
+          <span className="font-sans text-sm font-extrabold text-[var(--text)]">
             {formatCurrency(spent)}
           </span>
           {limit !== null ? (
-            <span className="text-xs text-slate-500 ml-1 font-mono">
+            <span className="text-xs text-[var(--text-subtle)] font-medium">
               / {formatCurrency(limit)}
             </span>
           ) : (
-            <span className="text-xs text-slate-400 ml-1 italic">(No limit)</span>
+            <span className="text-xs text-[var(--text-subtle)] italic">(No limit)</span>
           )}
           {percentUsed !== null && (
-            <span
-              className={`ml-2 font-mono text-xs font-bold ${
-                status === 'Exceeded'
-                  ? 'text-rose-600'
-                  : status === 'Warning'
-                  ? 'text-amber-600'
-                  : 'text-slate-600'
-              }`}
-            >
+            <span className={`ml-1 font-bold text-xs ${config.percentColor}`}>
               ({percentUsed.toFixed(1)}%)
             </span>
           )}
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
+      {/* Progress Bar Track & Animated Fill */}
+      <div 
+        className="h-2.5 w-full overflow-hidden rounded-full bg-[var(--border-strong)]/30 p-[1px]"
+        role="progressbar"
+        aria-valuenow={clampedPercent}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${name} budget usage`}
+      >
         {limit !== null ? (
           <div
-            className={`h-full rounded-full transition-all duration-500 ease-out ${badge.barColor}`}
+            className={`h-full rounded-full transition-all duration-500 ease-out ${config.barColor}`}
             style={{ width: `${clampedPercent}%` }}
           />
         ) : (
           <div
-            className="h-full rounded-full bg-slate-300"
+            className="h-full rounded-full bg-[var(--border-strong)]"
             style={{ width: spent > 0 ? '100%' : '0%' }}
           />
         )}

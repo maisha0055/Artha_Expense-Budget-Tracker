@@ -47,7 +47,7 @@ export const Modal: React.FC<ModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/50 backdrop-blur-md animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -56,23 +56,23 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <div
         ref={modalRef}
-        className={`w-full ${maxWidthClass} rounded-2xl bg-white shadow-2xl border border-slate-100 p-6 sm:p-8 animate-in zoom-in-95 duration-200 relative my-8`}
+        className={`w-full ${maxWidthClass} rounded-3xl bg-[var(--surface-solid)] backdrop-blur-2xl shadow-glass border border-[var(--border-strong)] p-6 sm:p-8 animate-in zoom-in-95 duration-200 relative my-8 text-[var(--text)]`}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-start justify-between gap-4 pb-4 border-b border-[var(--border)]">
           <div>
-            <h2 id="modal-title" className="text-xl font-bold tracking-tight text-slate-900">
+            <h2 id="modal-title" className="text-xl font-extrabold tracking-tight text-[var(--text)]">
               {title}
             </h2>
             {description && (
-              <p className="text-sm text-slate-500 mt-1">{description}</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1 font-medium">{description}</p>
             )}
           </div>
           <button
             id="modal-close-btn"
             type="button"
             onClick={onClose}
-            className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="rounded-xl p-2 text-[var(--text-subtle)] hover:bg-[var(--surface-hover)] hover:text-[var(--text)] transition-colors focus:outline-none cursor-pointer"
             aria-label="Close dialog"
           >
             <X className="h-5 w-5" />

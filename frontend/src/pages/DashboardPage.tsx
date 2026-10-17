@@ -5,14 +5,15 @@ import { StatCard } from '../components/StatCard';
 import { BudgetBar } from '../components/BudgetBar';
 import { BudgetWarningBanner } from '../components/BudgetWarningBanner';
 import { formatCurrency, CURRENCY_SYMBOL } from '../constants/currency';
+import { useTheme } from '../theme/useTheme';
 import {
-  TrendingUp,
-  TrendingDown,
+  ArrowUpRight,
+  ArrowDownRight,
   Wallet,
   Calendar,
   AlertCircle,
   RefreshCw,
-  PieChart as PieChartIcon,
+  BarChart3,
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
@@ -27,15 +28,16 @@ import {
   Cell,
 } from 'recharts';
 
-export const DashboardPage: React.FC = () => {
-  const getCurrentMonth = () => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
-  };
+const getCurrentMonth = (): string => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
 
-  const [month, setMonth] = useState<string>(getCurrentMonth());
+export const DashboardPage: React.FC = () => {
+  const [month, setMonth] = useState<string>(getCurrentMonth);
+  const { resolvedTheme } = useTheme();
 
   const handlePrevMonth = () => {
     const [year, m] = month.split('-').map(Number);
@@ -53,7 +55,7 @@ export const DashboardPage: React.FC = () => {
     setMonth(`${y}-${newM}`);
   };
 
-  // The ONLY data source for the dashboard is the /summary endpoint per prompt
+  // The ONLY data source for the dashboard is the /summary endpoint
   const {
     data: summary,
     isLoading,
@@ -76,16 +78,26 @@ export const DashboardPage: React.FC = () => {
       status: c.status,
     }));
 
-  const CHART_COLORS = [
-    '#6366f1', // Indigo
-    '#3b82f6', // Blue
-    '#06b6d4', // Cyan
-    '#10b981', // Emerald
-    '#f59e0b', // Amber
-    '#f43f5e', // Rose
-    '#8b5cf6', // Purple
-    '#ec4899', // Pink
-  ];
+  // Theme-aware chart colors
+  const CHART_COLORS = resolvedTheme === 'dark'
+    ? [
+        '#40bfc1', // Teal
+        '#ff6f5e', // Coral
+        '#ff6b8b', // Accessible rose tint
+        '#5ce1e3', // Bright teal
+        '#ff8e80', // Soft coral
+        '#38bdf8', // Sky
+        '#fb7185', // Soft rose
+      ]
+    : [
+        '#40bfc1', // Teal
+        '#ff6f5e', // Coral
+        '#f0134d', // Rose
+        '#259f9f', // Deep teal
+        '#e85a4a', // Darker coral
+        '#58ced0', // Bright teal
+        '#c90d3e', // Deep rose
+      ];
 
   const formattedMonthLabel = (() => {
     try {
@@ -99,37 +111,41 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Header & Month Selector */}
+      {/* Top Header & Styled Month Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <span className="text-xs font-black tracking-widest text-[var(--accent-rose-text)] uppercase">
+            ARTHA INSIGHTS
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--text)]">
             Financial Dashboard
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Overview for <span className="font-semibold text-slate-700">{formattedMonthLabel}</span>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
+            Overview for <span className="font-bold text-[var(--text)]">{formattedMonthLabel}</span>
           </p>
         </div>
 
         {/* Month Selector Bar */}
-        <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/80 bg-white p-1.5 shadow-xs">
+        <div className="flex items-center gap-1.5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] backdrop-blur-md p-1.5 shadow-xs">
           <button
             type="button"
             id="prev-month-btn"
             onClick={handlePrevMonth}
-            className="rounded-xl p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
+            className="rounded-xl p-2 text-[var(--text-muted)] hover:bg-[var(--accent-teal-tint)] hover:text-[var(--accent-teal-text)] transition cursor-pointer"
             title="Previous month"
+            aria-label="Previous month"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4 stroke-[2.2]" />
           </button>
 
           <div className="relative flex items-center px-2">
-            <Calendar className="pointer-events-none mr-2 h-4 w-4 text-slate-400" />
+            <Calendar className="pointer-events-none mr-2 h-4 w-4 text-[var(--accent-teal-text)]" />
             <input
               id="dashboard-month-input"
               type="month"
               value={month}
               onChange={(e) => setMonth(e.target.value)}
-              className="border-none bg-transparent py-1 text-xs font-semibold text-slate-800 focus:outline-none"
+              className="border-none bg-transparent py-1 text-xs font-bold text-[var(--text)] focus:outline-none cursor-pointer"
             />
           </div>
 
@@ -137,10 +153,11 @@ export const DashboardPage: React.FC = () => {
             type="button"
             id="next-month-btn"
             onClick={handleNextMonth}
-            className="rounded-xl p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
+            className="rounded-xl p-2 text-[var(--text-muted)] hover:bg-[var(--accent-teal-tint)] hover:text-[var(--accent-teal-text)] transition cursor-pointer"
             title="Next month"
+            aria-label="Next month"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 stroke-[2.2]" />
           </button>
         </div>
       </div>
@@ -150,31 +167,33 @@ export const DashboardPage: React.FC = () => {
         <div className="space-y-6 animate-pulse">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 rounded-2xl bg-slate-200" />
+              <div key={i} className="h-32 rounded-3xl bg-[var(--surface)] border border-[var(--border)]" />
             ))}
           </div>
-          <div className="h-64 rounded-2xl bg-slate-200" />
-          <div className="h-64 rounded-2xl bg-slate-200" />
+          <div className="h-72 rounded-3xl bg-[var(--surface)] border border-[var(--border)]" />
+          <div className="h-72 rounded-3xl bg-[var(--surface)] border border-[var(--border)]" />
         </div>
       )}
 
       {/* Error State */}
       {isError && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-8 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-3">
-            <AlertCircle className="h-6 w-6" />
+        <div className="rounded-3xl border border-[var(--accent-rose-border)] bg-[var(--accent-rose-tint)] p-8 text-center shadow-glass">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-rose)] text-white mb-3 shadow-rose-glow">
+            <AlertCircle className="h-6 w-6 stroke-[2.2]" />
           </div>
-          <h3 className="text-base font-semibold text-rose-900">Failed to load dashboard summary</h3>
-          <p className="text-sm text-rose-600 mt-1 max-w-md mx-auto">
-            {(error as Error)?.message || 'Unable to retrieve summary data for this month.'}
+          <h2 className="text-base font-bold text-[var(--accent-rose-text)]">
+            Failed to load dashboard summary
+          </h2>
+          <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
+            {(error as Error)?.message || 'Unable to retrieve financial summary for this month.'}
           </p>
           <button
             type="button"
             onClick={() => refetch()}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-rose-700 transition"
+            className="mt-4 btn-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold cursor-pointer"
           >
             <RefreshCw className="h-4 w-4" />
-            Retry
+            Retry Query
           </button>
         </div>
       )}
@@ -191,14 +210,14 @@ export const DashboardPage: React.FC = () => {
               title="Total Income"
               amount={formatCurrency(summary.totalIncome, true)}
               subtitle={`Recorded in ${formattedMonthLabel}`}
-              icon={TrendingUp}
+              icon={ArrowUpRight}
               variant="income"
             />
             <StatCard
               title="Total Expenses"
               amount={formatCurrency(summary.totalExpenses, true)}
               subtitle={`Recorded in ${formattedMonthLabel}`}
-              icon={TrendingDown}
+              icon={ArrowDownRight}
               variant="expense"
             />
             <StatCard
@@ -206,8 +225,8 @@ export const DashboardPage: React.FC = () => {
               amount={formatCurrency(summary.balance)}
               subtitle={
                 summary.balance >= 0
-                  ? 'Positive cash flow this month'
-                  : 'Negative balance this month'
+                  ? 'Positive savings this month'
+                  : 'Deficit spending this month'
               }
               icon={Wallet}
               variant="balance"
@@ -217,17 +236,17 @@ export const DashboardPage: React.FC = () => {
           {/* 3. Main Dashboard Grid: Spending Chart & Category Budget Bars */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Recharts Bar Chart */}
-            <div className="lg:col-span-7 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs">
+            <div className="lg:col-span-7 rounded-3xl glass-card p-6 shadow-glass border border-[var(--border)]">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                    <PieChartIcon className="h-4 w-4" />
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-teal-tint)] text-[var(--accent-teal-text)] border border-[var(--accent-teal-border)]">
+                    <BarChart3 className="h-5 w-5 stroke-[2.2]" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">
+                    <h2 className="text-base font-extrabold text-[var(--text)]">
                       Spending by Category
                     </h2>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--text-muted)]">
                       Expense distribution for {formattedMonthLabel}
                     </p>
                   </div>
@@ -235,9 +254,9 @@ export const DashboardPage: React.FC = () => {
               </div>
 
               {chartData.length === 0 ? (
-                <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
-                  <p className="text-sm font-semibold text-slate-700">No expenses recorded</p>
-                  <p className="text-xs text-slate-400 mt-1">
+                <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-6 text-center">
+                  <p className="text-sm font-bold text-[var(--text)]">No expenses recorded</p>
+                  <p className="text-xs text-[var(--text-subtle)] mt-1">
                     Add expense transactions to see the visual category breakdown.
                   </p>
                 </div>
@@ -250,29 +269,40 @@ export const DashboardPage: React.FC = () => {
                     >
                       <XAxis
                         dataKey="name"
-                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tick={{
+                          fontSize: 11,
+                          fill: resolvedTheme === 'dark' ? 'rgba(245, 240, 227, 0.70)' : '#3a595d',
+                          fontWeight: 600,
+                        }}
                         interval={0}
                         angle={-20}
                         textAnchor="end"
                       />
                       <YAxis
-                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tick={{
+                          fontSize: 11,
+                          fill: resolvedTheme === 'dark' ? 'rgba(245, 240, 227, 0.70)' : '#3a595d',
+                          fontWeight: 600,
+                        }}
                         tickFormatter={(val) => `${CURRENCY_SYMBOL}${val}`}
                       />
                       <Tooltip
-                        formatter={(val: any) => [
+                        formatter={(val: unknown) => [
                           formatCurrency(Number(val ?? 0)),
                           'Spent',
                         ]}
                         contentStyle={{
-                          backgroundColor: '#ffffff',
-                          borderRadius: '12px',
-                          border: '1px solid #e2e8f0',
-                          boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                          backgroundColor: resolvedTheme === 'dark' ? '#10292e' : 'rgba(255, 255, 255, 0.95)',
+                          backdropFilter: 'blur(10px)',
+                          borderRadius: '16px',
+                          border: resolvedTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(18, 53, 58, 0.12)',
+                          boxShadow: resolvedTheme === 'dark' ? '0 10px 25px -4px rgba(0, 0, 0, 0.5)' : '0 10px 25px -4px rgba(18, 53, 58, 0.08)',
                           fontSize: '12px',
+                          fontWeight: 600,
+                          color: resolvedTheme === 'dark' ? '#f5f0e3' : '#12353a',
                         }}
                       />
-                      <Bar dataKey="spent" radius={[6, 6, 0, 0]}>
+                      <Bar dataKey="spent" radius={[8, 8, 0, 0]}>
                         {chartData.map((_, index) => (
                           <Cell
                             key={`cell-${index}`}
@@ -287,26 +317,26 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Category Budget Bars List */}
-            <div className="lg:col-span-5 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs flex flex-col">
+            <div className="lg:col-span-5 rounded-3xl glass-card p-6 shadow-glass border border-[var(--border)] flex flex-col">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                    <ShieldCheck className="h-4 w-4" />
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-coral-tint)] text-[var(--accent-coral-text)] border border-[var(--accent-coral-border)]">
+                    <ShieldCheck className="h-5 w-5 stroke-[2.2]" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">
+                    <h2 className="text-base font-extrabold text-[var(--text)]">
                       Budget Progress
                     </h2>
-                    <p className="text-xs text-slate-500">
-                      Live status vs monthly limits
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Real-time status vs monthly limits
                     </p>
                   </div>
                 </div>
               </div>
 
               {summary.categories.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
-                  <p className="text-sm font-semibold text-slate-700">No categories found</p>
+                <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-6 text-center">
+                  <p className="text-sm font-bold text-[var(--text)]">No categories found</p>
                 </div>
               ) : (
                 <div className="space-y-3 overflow-y-auto max-h-[380px] pr-1">

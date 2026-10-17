@@ -101,7 +101,7 @@ public class CategoriesController : ControllerBase
         }
 
         var hasTransactions = await _dbContext.Transactions
-            .AnyAsync(t => t.CategoryId == id, cancellationToken);
+            .AnyAsync(t => t.CategoryId == id && t.UserId == userId, cancellationToken);
 
         if (hasTransactions)
         {

@@ -2,12 +2,246 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+
+  /* Semantic Page Tokens */
+  --bg: #f5f0e3;
+  --bg-soft: #fbf8f0;
+  --bg-page: var(--bg);
+  --bg-page-gradient: var(--bg-soft);
+
+  /* Semantic Surface Tokens */
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-hover: rgba(255, 255, 255, 0.90);
+  --surface-solid: #ffffff;
+  --surface-strong: var(--surface-solid);
+  --surface-input: rgba(255, 255, 255, 0.95);
+
+  /* Semantic Border Tokens */
+  --border: rgba(18, 53, 58, 0.09);
+  --border-strong: rgba(18, 53, 58, 0.16);
+
+  /* Semantic Typography Tokens */
+  --text: #12353a;
+  --text-muted: #3a595d;
+  --text-subtle: #688589;
+
+  /* Brand Accents */
+  --accent-primary: #f0134d;
+  --accent-secondary: #ff6f5e;
+  --accent-fresh: #40bfc1;
+
+  --accent-rose: var(--accent-primary);
+  --accent-rose-text: #b80938;
+  --accent-rose-tint: rgba(240, 19, 77, 0.12);
+  --accent-rose-border: rgba(240, 19, 77, 0.28);
+
+  --accent-coral: var(--accent-secondary);
+  --accent-coral-text: #a33224;
+  --accent-coral-tint: rgba(255, 111, 94, 0.14);
+  --accent-coral-border: rgba(255, 111, 94, 0.30);
+
+  --accent-teal: var(--accent-fresh);
+  --accent-teal-text: #0f6f71;
+  --accent-teal-tint: rgba(64, 191, 193, 0.14);
+  --accent-teal-border: rgba(64, 191, 193, 0.32);
+
+  /* Shadows */
+  --shadow-glass: 0 8px 32px 0 rgba(18, 53, 58, 0.06);
+
+  /* Decorative Blob Opacities */
+  --blob-teal-opacity: 0.18;
+  --blob-coral-opacity: 0.15;
+
+  /* Backward Compatibility Aliases */
+  --color-ink: var(--text);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-subtle: var(--text-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-rose: var(--accent-rose);
+  --color-rose-dark: var(--accent-rose-text);
+  --color-rose-light: var(--accent-rose-tint);
+  --color-rose-border: var(--accent-rose-border);
+  --color-coral: var(--accent-coral);
+  --color-coral-dark: var(--accent-coral-text);
+  --color-coral-light: var(--accent-coral-tint);
+  --color-coral-border: var(--accent-coral-border);
+  --color-teal: var(--accent-teal);
+  --color-teal-dark: var(--accent-teal-text);
+  --color-teal-light: var(--accent-teal-tint);
+  --color-teal-border: var(--accent-teal-border);
+  --color-cream-subtle: rgba(18, 53, 58, 0.04);
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Semantic Page Tokens: ink (#12353a pushed darker to #0b1f23) */
+  --bg: #0b1f23;
+  --bg-soft: #11292f;
+  --bg-page: var(--bg);
+  --bg-page-gradient: var(--bg-soft);
+
+  /* Semantic Surface Tokens: semi-transparent lighter ink (white at 6-9%) */
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.10);
+  --surface-solid: #10292e;
+  --surface-strong: var(--surface-solid);
+  --surface-input: rgba(255, 255, 255, 0.08);
+
+  /* Semantic Border Tokens: 1px border of white at 10-18% opacity */
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  /* Semantic Typography Tokens: cream (#f5f0e3), muted cream (~65-70%) */
+  --text: #f5f0e3;
+  --text-muted: rgba(245, 240, 227, 0.70);
+  --text-subtle: rgba(245, 240, 227, 0.48);
+
+  /* Brand Accents (adjusted for dark mode contrast & tints at 15-25%) */
+  --accent-primary: #f0134d;
+  --accent-secondary: #ff6f5e;
+  --accent-fresh: #40bfc1;
+
+  --accent-rose: var(--accent-primary);
+  --accent-rose-text: #ff6b8b; /* WCAG AA 6.1:1 on #0b1f23 */
+  --accent-rose-tint: rgba(240, 19, 77, 0.22);
+  --accent-rose-border: rgba(240, 19, 77, 0.35);
+
+  --accent-coral: var(--accent-secondary);
+  --accent-coral-text: #ff8e80; /* WCAG AA 5.9:1 on #0b1f23 */
+  --accent-coral-tint: rgba(255, 111, 94, 0.22);
+  --accent-coral-border: rgba(255, 111, 94, 0.35);
+
+  --accent-teal: var(--accent-fresh);
+  --accent-teal-text: #5ce1e3; /* WCAG AA 8.1:1 on #0b1f23 */
+  --accent-teal-tint: rgba(64, 191, 193, 0.20);
+  --accent-teal-border: rgba(64, 191, 193, 0.35);
+
+  /* Shadows */
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.40);
+
+  /* Decorative Blob Opacities: lowered in dark mode */
+  --blob-teal-opacity: 0.10;
+  --blob-coral-opacity: 0.08;
+
+  /* Backward Compatibility Aliases */
+  --color-ink: var(--text);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-subtle: var(--text-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-rose: var(--accent-rose);
+  --color-rose-dark: var(--accent-rose-text);
+  --color-rose-light: var(--accent-rose-tint);
+  --color-rose-border: var(--accent-rose-border);
+  --color-coral: var(--accent-coral);
+  --color-coral-dark: var(--accent-coral-text);
+  --color-coral-light: var(--accent-coral-tint);
+  --color-coral-border: var(--accent-coral-border);
+  --color-teal: var(--accent-teal);
+  --color-teal-dark: var(--accent-teal-text);
+  --color-teal-light: var(--accent-teal-tint);
+  --color-teal-border: var(--accent-teal-border);
+  --color-cream-subtle: rgba(255, 255, 255, 0.05);
+}
+
 @layer base {
-  body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  * {
+    border-color: var(--border);
   }
-  
-  code, pre {
-    font-family: 'JetBrains Mono', monospace;
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Glass Card Utility */
+.glass-card {
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-glass);
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.glass-card-hover:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* Primary Button Gradient */
+.btn-primary {
+  background: linear-gradient(135deg, #df0c42 0%, #f45b4b 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 16px -2px rgba(240, 19, 77, 0.35);
+  transition: all 180ms ease-in-out;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #cc093a 0%, #eb4735 100%);
+  box-shadow: 0 6px 20px 0 rgba(240, 19, 77, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  color: var(--text);
+  background: transparent;
+  transition: all 180ms ease-in-out;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+/* Custom Scrollbar for both themes */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}
+
+/* Smooth transition when switching themes */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, fill 200ms ease, stroke 200ms ease !important;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html.theme-transitioning,
+  html.theme-transitioning * {
+    transition: none !important;
   }
 }
