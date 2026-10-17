@@ -27,20 +27,29 @@ A full-stack application where users track income and expenses, set monthly budg
 docker compose up -d db
 ```
 
-### 2. Run the Backend API
+### 2. Configure Development Secrets (JWT Key)
+Use `dotnet user-secrets` to configure your local development JWT signing key without hardcoding secrets:
+```bash
+cd backend/src/FinanceTracker.Api
+dotnet user-secrets set "Jwt:Key" "YourDevelopmentSuperSecretJwtKeyThatIsLongEnough32Bytes!"
+dotnet user-secrets set "Jwt:Issuer" "FinanceTrackerApi"
+dotnet user-secrets set "Jwt:Audience" "FinanceTrackerClient"
+```
+
+### 3. Run the Backend API
 ```bash
 cd backend/src/FinanceTracker.Api
 dotnet run
 ```
 Access Swagger UI at `http://localhost:5000/swagger` or `https://localhost:5001/swagger`.
 
-### 3. Run Migrations (if modified)
+### 4. Run Migrations (if modified)
 ```bash
 cd backend
 dotnet tool run dotnet-ef database update --project src/FinanceTracker.Api --startup-project src/FinanceTracker.Api
 ```
 
-### 4. Run Unit Tests
+### 5. Run Unit Tests
 ```bash
 dotnet test backend/FinanceTracker.sln
 ```
