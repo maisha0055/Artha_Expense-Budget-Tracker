@@ -50,8 +50,8 @@ export const Navbar: React.FC = () => {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-200">
             <Wallet className="h-5 w-5" />
           </div>
-          <NavLink to="/" className="text-xl font-bold tracking-tight text-slate-900">
-            Finance<span className="text-indigo-600">Tracker</span>
+          <NavLink to="/" className="text-xl font-extrabold tracking-wider text-slate-900 hover:text-indigo-600 transition-colors">
+            ARTHA
           </NavLink>
         </div>
 

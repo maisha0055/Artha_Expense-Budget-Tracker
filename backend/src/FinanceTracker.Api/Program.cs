@@ -38,8 +38,8 @@ var jwtKey = builder.Configuration["Jwt:Key"]
     ?? Environment.GetEnvironmentVariable("Jwt__Secret")
     ?? "ThisIsASuperSecretKeyForFinanceTrackerJwtTokenGeneration12345!";
 
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "FinanceTrackerApi";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "FinanceTrackerClient";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ArthaApi";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "ArthaClient";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -55,9 +55,9 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-        ValidateIssuer = true,
+        ValidateIssuer = false, // flexible for dev / Artha
         ValidIssuer = jwtIssuer,
-        ValidateAudience = true,
+        ValidateAudience = false,
         ValidAudience = jwtAudience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
@@ -67,14 +67,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // CORS
-var frontendOrigin = builder.Configuration["FrontendOrigin"] ?? "http://localhost:5173";
-var allowedOrigins = new HashSet<string> { frontendOrigin, "http://localhost:5173", "http://127.0.0.1:5173" }.ToArray();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(_ => true)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -87,9 +84,9 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "FinanceTracker API",
+        Title = "ARTHA API",
         Version = "v1",
-        Description = "Personal Finance Tracker API with JWT Authentication"
+        Description = "ARTHA - Personal Expense & Budget Tracker API with JWT Authentication"
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

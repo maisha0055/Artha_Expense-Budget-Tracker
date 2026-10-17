@@ -1,6 +1,6 @@
-# Personal Finance Tracker
+# ARTHA - Expense & Budget Tracker
 
-A full-stack application where users track income and expenses, set monthly budgets per category, and view a dashboard with budget warnings.
+A modern full-stack application where users track income and expenses, set monthly category budgets, and manage finances with real-time budget status alerts.
 
 ## Architecture & Tech Stack
 
@@ -28,20 +28,20 @@ docker compose up -d db
 ```
 
 ### 2. Configure Development Secrets (JWT Key)
-Use `dotnet user-secrets` to configure your local development JWT signing key without hardcoding secrets:
+Use `dotnet user-secrets` to configure your local development JWT signing key:
 ```bash
 cd backend/src/FinanceTracker.Api
 dotnet user-secrets set "Jwt:Key" "YourDevelopmentSuperSecretJwtKeyThatIsLongEnough32Bytes!"
-dotnet user-secrets set "Jwt:Issuer" "FinanceTrackerApi"
-dotnet user-secrets set "Jwt:Audience" "FinanceTrackerClient"
+dotnet user-secrets set "Jwt:Issuer" "ArthaApi"
+dotnet user-secrets set "Jwt:Audience" "ArthaClient"
 ```
 
 ### 3. Run the Backend API
 ```bash
 cd backend/src/FinanceTracker.Api
-dotnet run
+dotnet run --urls "http://localhost:5050"
 ```
-Access Swagger UI at `http://localhost:5000/swagger` or `https://localhost:5001/swagger`.
+Access Swagger UI at `http://localhost:5050/swagger`.
 
 ### 4. Run Migrations (if modified)
 ```bash

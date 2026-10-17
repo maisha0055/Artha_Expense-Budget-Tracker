@@ -45,8 +45,20 @@ export const LoginPage: React.FC = () => {
       navigate('/');
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        const detail = err.response?.data?.detail || err.response?.data?.title || 'Invalid email or password.';
-        setServerError(detail);
+        if (!err.response) {
+          setServerError('Cannot reach backend server. Please check if the API is running at http://localhost:5050.');
+        } else {
+          const data = err.response.data;
+          let message = data?.detail;
+          if (!message && data?.errors && typeof data.errors === 'object') {
+            const list = Object.values(data.errors).flat() as string[];
+            if (list.length > 0) message = list.join(' ');
+          }
+          if (!message) {
+            message = data?.title || (err.response.status === 401 ? 'Invalid email or password.' : 'Login failed. Please check your inputs.');
+          }
+          setServerError(message);
+        }
       } else {
         setServerError('An unexpected error occurred. Please try again.');
       }
@@ -60,9 +72,10 @@ export const LoginPage: React.FC = () => {
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl shadow-slate-200/70 border border-slate-100">
         {/* Brand header */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-200 mb-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-200 mb-2">
             <Wallet className="h-6 w-6" />
           </div>
+          <span className="text-xs font-black tracking-widest text-indigo-600 uppercase mb-1">ARTHA</span>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Welcome Back</h1>
           <p className="text-sm text-slate-500 mt-1">Sign in to manage your budget and finances</p>
         </div>

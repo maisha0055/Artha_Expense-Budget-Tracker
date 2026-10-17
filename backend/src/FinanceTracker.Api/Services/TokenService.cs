@@ -27,8 +27,8 @@ public class TokenService : ITokenService
             throw new InvalidOperationException("JWT Secret Key is missing or too short. It must be at least 32 characters long.");
         }
 
-        var issuer = _configuration["Jwt:Issuer"] ?? "FinanceTrackerApi";
-        var audience = _configuration["Jwt:Audience"] ?? "FinanceTrackerClient";
+        var issuer = _configuration["Jwt:Issuer"] ?? "ArthaApi";
+        var audience = _configuration["Jwt:Audience"] ?? "ArthaClient";
         var expiryMinutes = 60;
         if (int.TryParse(_configuration["Jwt:ExpiryMinutes"], out var parsedExpiry))
         {
