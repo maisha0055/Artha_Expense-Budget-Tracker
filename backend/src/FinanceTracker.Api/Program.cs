@@ -68,11 +68,13 @@ builder.Services.AddAuthorization();
 
 // CORS
 var frontendOrigin = builder.Configuration["FrontendOrigin"] ?? "http://localhost:5173";
+var allowedOrigins = new HashSet<string> { frontendOrigin, "http://localhost:5173", "http://127.0.0.1:5173" }.ToArray();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(frontendOrigin)
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
