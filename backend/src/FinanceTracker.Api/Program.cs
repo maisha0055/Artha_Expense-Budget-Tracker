@@ -105,7 +105,14 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// CORS: Restricted to configured origin + local frontend dev origins
+// Handle Cloud Host dynamic PORT (Render, Railway, Heroku)
+var hostPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(hostPort))
+{
+    builder.WebHost.UseUrls($"http://+:{hostPort}");
+}
+
+// CORS: Restricted to configured origin + artha-expense.vercel.app + local frontend dev origins
 var configuredOrigin = builder.Configuration["FrontendOrigin"]
     ?? Environment.GetEnvironmentVariable("FrontendOrigin")
     ?? "http://localhost:5173";
@@ -113,6 +120,7 @@ var configuredOrigin = builder.Configuration["FrontendOrigin"]
 var allowedOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 {
     configuredOrigin.TrimEnd('/'),
+    "https://artha-expense.vercel.app",
     "http://localhost:5173",
     "http://127.0.0.1:5173"
 };
